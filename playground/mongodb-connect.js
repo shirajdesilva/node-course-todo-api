@@ -13,16 +13,16 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, client) => {
 
     const db = client.db('TodoApp');
 
-    // db.collection('Todos').insertOne({
-    //     text: 'Call Air India',
-    //     completed:false
-    // }, (err, result) => {
-    //     if (err) {
-    //         return console.log('Could not insert document', err);
-    //     }
-    //     console.log('Document inserted', JSON.stringify(result.ops, undefined, 2));
+    db.collection('Todos').insertOne({
+        text: 'Book Japan Accomodation',
+        completed:false
+    }, (err, result) => {
+        if (err) {
+            return console.log('Could not insert document', err);
+        }
+        console.log('Document inserted', JSON.stringify(result.ops, undefined, 2));
 
-    // })
+    })
 
 
     //Insert new doc into Users collection (name, age, location)
