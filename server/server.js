@@ -24,11 +24,24 @@ app.post('/todos', (req, res) => {
 })
 
 
-app.listen(port, ()=> {
+app.get('/todos', (req, res) => {
+    Todo.find()
+    .then ( (todos) => {
+        res.send({todos});
+    }, (e) => {
+       res.status(400)
+       .send('Could not get todos list', e)
+    })
+})
+
+
+app.listen(port, () => {
     console.log(`Started on port ${port}`)
 });
 
 module.exports = {app};
+
+
 
 // var newTodo = new Todo({
 //     text: 'Book Osaka Accomodation',
