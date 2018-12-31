@@ -89,7 +89,7 @@ app.delete('/todos/:id', (req, res) => {
                 return res.status(404).send('No document was found');
             }
             //if doc, send 200 and doc
-            res.status(200).send(todo)
+            res.status(200).send({todo})
             // error -> return 400 and empty body
         }).catch( (e) => {
             res.status(400).send('Could not find todo', e)
