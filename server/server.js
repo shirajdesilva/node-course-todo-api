@@ -1,6 +1,7 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var {ObjectID} = require('mongodb');
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 
 var {mongoose } = require('./db/mongoose.js')
@@ -95,6 +96,45 @@ app.delete('/todos/:id', (req, res) => {
             res.status(400).send('Could not find todo', e)
         })
 })
+
+
+app.patch('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    // only a subset can be passed to the patch call
+    var body = _.pick(req.body, ['text', 'completed']);
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send('ID is not valid');
+    }
+
+    // if completed === true
+    if (_.isBoolean(body.completed) && body.completed) {
+
+        body.completedAt = new Date().getTime();
+
+        // else if we don't ask for a completed === true
+    } else {
+
+        body.completed = false;
+        body.completedAt = null;
+
+    }
+
+    Todo.findByIdAndUpdate(id, {
+        $set: body
+    }, {
+            new: true
+        }).then((todo) => {
+            if (!todo) {
+                return res.status(404).send();
+            }
+            res.send({ todo });
+
+        }, (e) => {
+            res.status(400).send(e);
+        });
+
+});
 
 
 app.listen(port, () => {
