@@ -1,40 +1,43 @@
+require('./config/config');
+
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
-const {ObjectID} = require('mongodb');
+const { ObjectID } = require('mongodb');
 
 
-var {mongoose } = require('./db/mongoose.js')
-var {Todo} = require('./models/todo')
-var {Users} = require('./models/users')
+var { mongoose } = require('./db/mongoose.js')
+var { Todo } = require('./models/todo')
+var { Users } = require('./models/users')
 
 var app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
+// POST/todos
 app.post('/todos', (req, res) => {
     var todo = new Todo({
         text: req.body.text
     })
 
     todo.save()
-    .then ((doc) => {
-        res.send(doc)
-    }, (err) => {
-        res.status(400).send(err)
-    })
+        .then((doc) => {
+            res.send(doc)
+        }, (err) => {
+            res.status(400).send(err)
+        })
 })
 
-
+//GET /todos
 app.get('/todos', (req, res) => {
     Todo.find()
-    .then ( (todos) => {
-        res.send({todos});
-    }, (e) => {
-       res.status(400)
-       .send('Could not get todos list', e)
-    })
+        .then((todos) => {
+            res.send({ todos });
+        }, (e) => {
+            res.status(400)
+                .send('Could not get todos list', e)
+        })
 })
 
 // GET / todos/5xdcdxaa6s8d76as8d
@@ -47,57 +50,59 @@ app.get('/todos/:id', (req, res) => {
     } else {
         //if valid
         Todo.findById(id)
-        .then ( (todos) => {
-            //if no todo
-            if (!todos) {
-                res.send(404).send();
-            }
-            // if todo exists
-            res.send({todos})
-        // error handler
-        }, (e) => {
-            res.status(400).send('Could not find todo', e);
-        })
+            .then((todos) => {
+                //if no todo
+                if (!todos) {
+                    res.send(404).send();
+                }
+                // if todo exists
+                res.send({ todos })
+                // error handler
+            }, (e) => {
+                res.status(400).send('Could not find todo', e);
+            })
     }
 
     // if not valid, respond with 404, send back empty body, send()
 
     //query the db -findbyID
-        //success case
-            // if(todo) -- send it back
-            // if no todo - send back 404 with empty body send()
+    //success case
+    // if(todo) -- send it back
+    // if no todo - send back 404 with empty body send()
 
-        //error case - 400 - request was not valid - send()
+    //error case - 400 - request was not valid - send()
 
     //res.send(req.params)
 });
 
 
+// DELETE/todos
 app.delete('/todos/:id', (req, res) => {
     //get the id
     var id = req.params.id;
 
     //validate the id --> not valid? return 404
-    if(!ObjectID.isValid(id)) {
+    if (!ObjectID.isValid(id)) {
         return res.status(404).send('ID is not valid');
     }
     //remove todo by id
-        Todo.findByIdAndRemove(id)
-        .then ((todo) => {
-        //  success
+    Todo.findByIdAndRemove(id)
+        .then((todo) => {
+            //  success
             //if no doc, send 404
-            if(!todo) {
+            if (!todo) {
                 return res.status(404).send('No document was found');
             }
             //if doc, send 200 and doc
-            res.status(200).send({todo})
+            res.status(200).send({ todo })
             // error -> return 400 and empty body
-        }).catch( (e) => {
+        }).catch((e) => {
             res.status(400).send('Could not find todo', e)
         })
 })
 
 
+// PATCH/todos - UPDATE
 app.patch('/todos/:id', (req, res) => {
     var id = req.params.id;
     // only a subset can be passed to the patch call
@@ -136,12 +141,12 @@ app.patch('/todos/:id', (req, res) => {
 
 });
 
-
+// Listen
 app.listen(port, () => {
     console.log(`Started on port ${port}`)
 });
 
-module.exports = {app};
+module.exports = { app };
 
 
 
