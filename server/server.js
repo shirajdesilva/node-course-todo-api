@@ -165,9 +165,9 @@ app.post('/users', (req, res) => {
     user.save()
         .then(() => {
             return user.generateAuthToken()
-        }).then( (token) => {
-                res.header('x-auth', token).send(user);
-            }, (e) => {
+        }).then((token) => {
+            res.header('x-auth', token).send(user);
+        }, (e) => {
             res.status(400).send(e);
         });
 });
@@ -178,6 +178,30 @@ app.post('/users', (req, res) => {
 // private route
 app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
+})
+
+
+
+// login user request
+// POST /users/login
+// we don't have a token
+
+app.post('/users/login', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password'])
+
+    // just return the response body
+    // res.send(body);
+
+    User.findByCredentials(body.email, body.password)
+        .then((user) => {
+            // res.send(user);
+            return user.generateAuthToken()
+                .then((token) => {
+                    res.header('x-auth', token).send(user);
+                })
+        }).catch((e) => {
+            res.status(400).send();
+        })
 })
 
 
