@@ -367,7 +367,7 @@ describe('POST /users/login', () => {
             }
 
             User.findByID(users[1]._id).then ((user) => {
-                expect(user.toke.length).toBe(0);
+                expect(user.tokens.length).toBe(0);
                 done();
             }).catch ( (e)=> {
                 done(e);
@@ -375,4 +375,44 @@ describe('POST /users/login', () => {
         })
 
     })
+})
+
+
+
+describe('DELETE /users/me/token', () => {
+
+    it ('should remove auth token on logout', (done) => {
+        //make a request to our app
+        request(app)
+        // DELETE request to /users/me/token
+        .delete('/users/me/token')
+        //set x-auth to token for user[0]
+        .set('x-auth', user[0].tokens[0].token)
+        //expect 200
+        .expect(200)
+        // async expect - find user and verify there is token array has length 0
+        // .expect ( (res) => {
+        //     expect ( (res.header['x-auth']).toNotExist())
+        // })
+        .end ( (err, res) => {
+            if (err) {
+                return done(err)
+            }
+
+            User.findById(users[0]._id)
+            // then once the user comes back
+            .then ( (user) => {
+                //make an assetion that the tokens array has length 0
+                expect(user.tokens.length).toBe(0)
+                done()
+            })
+            // make a catch call for errors to catch any errors
+            .catch ( (e) => {
+                done(e)
+            })
+
+        })
+    })
+
+
 })
